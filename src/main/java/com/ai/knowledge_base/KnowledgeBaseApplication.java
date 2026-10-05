@@ -1,10 +1,11 @@
 package com.ai.knowledge_base;
 
-import org.springframework.ai.model.google.genai.autoconfigure.chat.GoogleGenAiChatAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 
+@EnableAsync
 @SpringBootApplication
 public class KnowledgeBaseApplication {
 

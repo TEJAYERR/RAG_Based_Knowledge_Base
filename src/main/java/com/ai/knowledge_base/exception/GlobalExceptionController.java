@@ -1,6 +1,8 @@
 package com.ai.knowledge_base.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.ai.retry.NonTransientAiException;
+import org.springframework.ai.retry.TransientAiException;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +23,11 @@ public class GlobalExceptionController {
                 .localDateTime(LocalDateTime.now())
                 .message(contentMissingException.getMessage())
                 .path(httpRequest.getServletPath())
-                .status(HttpStatus.NO_CONTENT.value())
-                .error(HttpStatus.NO_CONTENT.getReasonPhrase())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .build();
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
 
@@ -77,6 +79,56 @@ public class GlobalExceptionController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<?> transientAiException (
+            TransientAiException transientAiException,
+            HttpServletRequest httpRequest) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .localDateTime(LocalDateTime.now())
+                .message("AI service is currently unavailable. Please try again later.")
+                .path(httpRequest.getServletPath())
+                .status(HttpStatus.SERVICE_UNAVAILABLE.value())
+                .error(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<?> nonTransientAiException (
+            NonTransientAiException nonTransientAiException,
+            HttpServletRequest httpRequest) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .localDateTime(LocalDateTime.now())
+                .message("AI service is currently unavailable. Please try again later.")
+                .path(httpRequest.getServletPath())
+                .status(HttpStatus.SERVICE_UNAVAILABLE.value())
+                .error(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<?> runtimeException (
+            RuntimeException runtimeException,
+            HttpServletRequest httpRequest) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .localDateTime(LocalDateTime.now())
+                .path(httpRequest.getServletPath())
+                .status(HttpStatus.SERVICE_UNAVAILABLE.value())
+                .error(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(errorResponse);
     }
 }
